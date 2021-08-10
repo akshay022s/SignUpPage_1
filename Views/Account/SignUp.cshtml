@@ -1,0 +1,121 @@
+﻿@model SignUpPageCore.Models.RegistrationModel
+
+@{
+    ViewData["Title"] = "SignUp";
+}
+
+<h1>SignUp</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SignUp">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Username" class="control-label"></label>
+                <input asp-for="Username" class="form-control" />
+                <span asp-validation-for="Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label"></label>
+                <input asp-for="Password" class="form-control"  type="password" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label"></label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Contact" class="control-label"></label>
+                <input asp-for="Contact" class="form-control" />
+                <span asp-validation-for="Contact" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Genders" class="control-label"></label><br />
+                    @{ foreach (var gender in Model.GenderList)
+                        {
+                            @Html.Raw("&nbsp;")
+                            @Html.RadioButtonFor(model => model.Genders, new { id = "Gender" + gender.ID }, new { @class = "custom-radio" })
+                            @Html.Raw("&nbsp;")
+                            @Html.Label("Gender" + gender.ID, gender.Type)
+                        }
+                    }
+                    <span asp-validation-for="Genders" class="text-danger"></span>
+               
+            </div>
+            <div class="form-group">
+
+                <label asp-for="CountryCode" class="control-label"></label>
+                @Html.Raw("&nbsp;")
+                @Html.DropDownListFor(m => m.CountryCode, new SelectList(Model.CountryList, "CountryCode", "CountryName"), "-- Select --", new { @class = "form-control" })
+                @*<select asp-for="CountryCode" class="form-control" id="CountryCode" name="CountryCode" asp-items="@(new SelectList(ViewBag.CountryList,"CountryCode", "CountryName"))">
+                    <option>-- Select --</option>
+                    </select>*@
+                <span asp-validation-for="CountryCode" class="text-danger"></span>
+
+            </div>
+            <div class="form-group">
+                <label asp-for="CityCode" class="control-label"></label>
+                <select asp-for="CityCode" class="form-control" id="CityCode" name="CityCode" asp-items="@(new SelectList("","CityCode", "CityName"))">
+                    <option value="">-- Select --</option>
+                </select>
+
+                <span asp-validation-for="CityCode" class="text-danger"></span>
+
+            </div>
+
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Terms" />
+                    @Html.DisplayNameFor(model => model.Terms)
+                </label>
+                <span asp-validation-for="Terms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary"  asp-controller="Home" asp-action="Index" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+
+
+
+
+    <script type="text/javascript">
+        
+        $('#CountryCode').change(function () {
+            $.getJSON('/Account/CityList?CountryCode=' + $('#CountryCode option:selected').val(), function (data) {
+                var items = '<option>-- Select City --</option>';
+                $.each(data, function (i, citylist) {
+                    items += "<option value='" + citylist.value + "'>" + citylist.text + "</option>";
+                });
+                $('#CityCode').html(items);
+            });
+        });
+
+
+        $.validator.unobtrusive.adapters.add("validationcheck", function (options) {
+            // jQuery Validate equates "required" with "mandatory" for checkbox elements
+            if (options.element.tagName.toUpperCase() == "INPUT" || options.element.type.toUpperCase() == "CHECKBOX") {
+                options.rules["required"] = true;
+                if (options.message) {
+                    options.message["required"] = options.message;
+                }
+            }
+        });
+    </script>
+}
